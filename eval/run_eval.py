@@ -7,7 +7,7 @@ import argparse
 import csv
 from pathlib import Path
 
-from rag.chain import retrieve
+from rag.chain import page_of, retrieve
 
 
 def main(k: int) -> None:
@@ -17,7 +17,7 @@ def main(k: int) -> None:
         docs = retrieve(r["question"], k=k, min_score=0.0)
         found = any(
             d.metadata.get("source") == r["expected_source"]
-            and str(d.metadata.get("page")) == r["expected_page"]
+            and page_of(d) == r["expected_page"].strip()
             for d in docs
         )
         hits += found

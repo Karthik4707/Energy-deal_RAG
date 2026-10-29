@@ -32,9 +32,18 @@ def condense(question: str, history: list[tuple[str, str]]) -> str:
     return _llm().invoke([HumanMessage(content=msg)]).content.strip()
 
 
+def page_of(doc: Document) -> str:
+    """Pinecone returns numbers as floats (1.0); show them as whole pages."""
+    p = doc.metadata.get("page", "?")
+    try:
+        return str(int(float(p)))
+    except (TypeError, ValueError):
+        return str(p)
+
+
 def format_context(docs: list[Document]) -> str:
     return "\n\n".join(
-        f"[{i}] ({d.metadata.get('source', '?')}, p.{d.metadata.get('page', '?')})\n{d.page_content}"
+        f"[{i}] ({d.metadata.get('source', '?')}, p.{page_of(d)})\n{d.page_content}"
         for i, d in enumerate(docs, start=1)
     )
 

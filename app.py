@@ -4,7 +4,7 @@ from pathlib import Path
 
 import streamlit as st
 
-from rag.chain import ask
+from rag.chain import ask, page_of
 from rag.ingest import ingest
 
 st.set_page_config(page_title="Energy Deal RAG", page_icon="⚡", layout="wide")
@@ -45,7 +45,7 @@ if question := st.chat_input("e.g. What is the installed capacity of the plant?"
         if answer.sources:
             st.markdown("**Sources**")
             for i, d in enumerate(answer.sources, start=1):
-                st.markdown(f"[{i}] `{d.metadata.get('source')}` – page {d.metadata.get('page')}")
+                st.markdown(f"[{i}] `{d.metadata.get('source')}` – page {page_of(d)}")
                 if show_chunks:
                     st.caption(d.page_content[:600] + "…")
     st.session_state.history.append((question, answer.text))
