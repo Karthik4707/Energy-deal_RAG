@@ -28,24 +28,37 @@ with st.sidebar:
     st.divider()
     top_k = st.slider("Top-k chunks", 1, 10, 4)
     show_chunks = st.toggle("Show retrieved chunks", value=False)
+    allow_general = st.toggle(
+        "Allow general-knowledge answers",
+        value=False,
+        help="Off = strict: answers only from the documents. "
+             "On = if the documents don't cover it, answer from general knowledge, clearly labelled.",
+    )
     if st.button("Clear chat"):
-        st.session_state.history = []
+        st.session_state.turns = []
 
-st.session_state.setdefault("history", [])
+st.session_state.setdefault("turns", [])  # list of (question, Answer)
 
-for q, a in st.session_state.history:
+
+def show_answer(answer) -> None:
+    st.markdown(answer.text)
+    if answer.sources:
+        st.markdown("**Sources**")
+        for i, d in enumerate(answer.sources, start=1):
+            st.markdown(f"[{i}] `{d.metadata.get('source')}` – page {page_of(d)}")
+            if show_chunks:
+                st.caption(d.page_content[:600] + "…")
+
+
+for q, a in st.session_state.turns:
     st.chat_message("user").write(q)
-    st.chat_message("assistant").write(a)
+    with st.chat_message("assistant"):
+        show_answer(a)
 
 if question := st.chat_input("e.g. What is the installed capacity of the plant?"):
     st.chat_message("user").write(question)
+    history = [(q, a.text) for q, a in st.session_state.turns]
     with st.chat_message("assistant"), st.spinner("Searching the documents..."):
-        answer = ask(question, st.session_state.history, k=top_k, namespace=namespace)
-        st.write(answer.text)
-        if answer.sources:
-            st.markdown("**Sources**")
-            for i, d in enumerate(answer.sources, start=1):
-                st.markdown(f"[{i}] `{d.metadata.get('source')}` – page {page_of(d)}")
-                if show_chunks:
-                    st.caption(d.page_content[:600] + "…")
-    st.session_state.history.append((question, answer.text))
+        answer = ask(question, history, k=top_k, namespace=namespace, allow_general=allow_general)
+        show_answer(answer)
+    st.session_state.turns.append((question, answer))

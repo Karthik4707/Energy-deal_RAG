@@ -17,3 +17,10 @@ Chat history:
 
 Follow-up: {question}
 Standalone question:"""
+
+GENERAL_LABEL = "⚠️ *Not found in the documents — general-knowledge answer (no sources, verify before use):*"
+
+GENERAL_PROMPT = """You are a helpful assistant for an M&A advisory team specialising in renewable energy.
+The user's question is not covered by the deal documents, so answer from general knowledge.
+Be accurate and concise (at most 6 sentences or a short bullet list). If you are unsure, say so.
+Never invent figures about a specific company or deal."""

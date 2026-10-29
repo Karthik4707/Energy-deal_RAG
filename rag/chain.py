@@ -7,7 +7,7 @@ from langchain_core.documents import Document
 from langchain_core.messages import HumanMessage, SystemMessage
 
 from rag.ingest import get_store
-from rag.prompts import CONDENSE_PROMPT, SYSTEM_PROMPT
+from rag.prompts import CONDENSE_PROMPT, GENERAL_LABEL, GENERAL_PROMPT, SYSTEM_PROMPT
 from rag.providers import get_llm
 
 NOT_FOUND = "Not found in the documents."
@@ -17,6 +17,7 @@ NOT_FOUND = "Not found in the documents."
 class Answer:
     text: str
     sources: list[Document] = field(default_factory=list)
+    general: bool = False  # True = answered from general knowledge, not the documents
 
 
 def _llm(temperature: float = 0.0):
@@ -54,15 +55,27 @@ def retrieve(question: str, k: int = 4, namespace: str = "default",
     return [doc for doc, score in hits if score >= min_score]
 
 
+def general_answer(question: str) -> Answer:
+    """Fallback when the documents don't cover the question. Clearly labelled."""
+    messages = [
+        SystemMessage(content=GENERAL_PROMPT),
+        HumanMessage(content=question),
+    ]
+    text = _llm(temperature=0.3).invoke(messages).content.strip()
+    return Answer(f"{GENERAL_LABEL}\n\n{text}", general=True)
+
+
 def ask(question: str, history: list[tuple[str, str]] | None = None,
-        k: int = 4, namespace: str = "default") -> Answer:
+        k: int = 4, namespace: str = "default", allow_general: bool = False) -> Answer:
     standalone = condense(question, history or [])
     docs = retrieve(standalone, k=k, namespace=namespace)
-    if not docs:
-        return Answer(NOT_FOUND)
-    messages = [
-        SystemMessage(content=SYSTEM_PROMPT.format(context=format_context(docs))),
-        HumanMessage(content=standalone),
-    ]
-    text = _llm().invoke(messages).content.strip()
-    return Answer(text, [] if text.startswith(NOT_FOUND) else docs)
+    text = NOT_FOUND
+    if docs:
+        messages = [
+            SystemMessage(content=SYSTEM_PROMPT.format(context=format_context(docs))),
+            HumanMessage(content=standalone),
+        ]
+        text = _llm().invoke(messages).content.strip()
+    if text.startswith(NOT_FOUND):
+        return general_answer(standalone) if allow_general else Answer(NOT_FOUND)
+    return Answer(text, docs)
