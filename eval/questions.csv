@@ -1,0 +1,13 @@
+question,expected_source,expected_page,expected_answer
+What is the installed electrical capacity of the plant?,biogas_plant_teaser_SYNTHETIC.pdf,1,1.2 MW
+When was the plant commissioned?,biogas_plant_teaser_SYNTHETIC.pdf,1,2012
+What was EBITDA in 2025?,biogas_plant_teaser_SYNTHETIC.pdf,1,"EUR 780,000"
+What feedstock does the plant use?,biogas_plant_teaser_SYNTHETIC.pdf,1,"Maize silage 55%, cattle manure 30%, grass silage 15%"
+How many households receive heat?,biogas_plant_teaser_SYNTHETIC.pdf,1,140
+What is the net debt?,biogas_plant_teaser_SYNTHETIC.pdf,1,EUR 1.1 million
+Until when is the feed-in tariff secured?,biogas_plant_teaser_SYNTHETIC.pdf,2,31 December 2032
+What is the flexibilisation plan?,biogas_plant_teaser_SYNTHETIC.pdf,2,Additional 600 kW CHP unit and 2000 m3 gas storage
+What are the key risks?,biogas_plant_teaser_SYNTHETIC.pdf,2,"Maize prices, post-2032 support, digestate rules"
+When are non-binding offers due?,biogas_plant_teaser_SYNTHETIC.pdf,2,31 March 2027
+How far is the gas grid?,biogas_plant_teaser_SYNTHETIC.pdf,2,3.5 km
+When were the CHP units overhauled?,biogas_plant_teaser_SYNTHETIC.pdf,2,"2024, EUR 350,000"
